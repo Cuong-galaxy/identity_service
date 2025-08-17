@@ -1,5 +1,4 @@
-package com.helloSpring.identity_service.entity;
-
+package com.helloSpring.identity_service.dto.response;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,13 +9,15 @@ import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
 
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
-public class User {
+
+public class UserResponse {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
@@ -25,6 +26,4 @@ public class User {
     String FirstName;
     String LastName;
     LocalDate dob;
-
-
 }
