@@ -15,8 +15,8 @@ import java.time.LocalDate;
 public class UserUpdateRequest {
     @Size(min = 8, message = "PASSWORD_ERROR")
     String password;
-    String FirstName;
-    String LastName;
+    String firstName;
+    String lastName;
     LocalDate dob;
 
 }

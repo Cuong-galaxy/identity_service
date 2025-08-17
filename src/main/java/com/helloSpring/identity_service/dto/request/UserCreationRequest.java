@@ -1,6 +1,5 @@
 package com.helloSpring.identity_service.dto.request;
 
-import com.helloSpring.identity_service.exception.ErrorCode;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -17,8 +16,8 @@ public class UserCreationRequest {
 
     @Size(min = 8, message = "PASSWORD_ERROR")
     String password;
-    String FirstName;
-    String LastName;
+    String firstName;
+    String lastName;
     LocalDate dob;
 
 

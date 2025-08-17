@@ -23,7 +23,7 @@ public class UserResponse {
     String id;
     String username;
     String password;
-    String FirstName;
-    String LastName;
+    String firstName;
+    String lastName;
     LocalDate dob;
 }
