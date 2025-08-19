@@ -6,6 +6,7 @@ public enum ErrorCode {
     PASSWORD_ERROR(1002, "Password error"),
     USERNAME_INVALID(1003, "User name invalid"),
     USERNAME_ERROR(1004, "User name is must be 8 charater"),
+    USER_NOT_EXISTED(1005, "User not existed"),
 
     ;
 
