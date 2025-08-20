@@ -24,9 +24,11 @@ public class AuthenticationController {
     ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request){
        boolean result =  authenticationService.authenticate(request);
        return ApiResponse.<AuthenticationResponse>builder()
-               .result(AuthenticationResponse.builder())
-               .authenticated(result)
+               .result(AuthenticationResponse.builder()
+                       .authenticated(result)
+                       .build())
                .build();
-        .build();
+
+
     }
 }
