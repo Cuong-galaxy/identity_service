@@ -4,7 +4,6 @@ import com.helloSpring.identity_service.dto.request.ApiResponse;
 import com.helloSpring.identity_service.dto.request.UserCreationRequest;
 import com.helloSpring.identity_service.dto.request.UserUpdateRequest;
 import com.helloSpring.identity_service.dto.response.UserResponse;
-import com.helloSpring.identity_service.entity.User;
 import com.helloSpring.identity_service.service.UserService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;

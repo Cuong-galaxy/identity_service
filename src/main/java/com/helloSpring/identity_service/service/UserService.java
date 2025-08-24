@@ -13,7 +13,11 @@ import com.helloSpring.identity_service.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
@@ -22,6 +26,8 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.List;
 
+
+@Slf4j
 @Service
 @RequiredArgsConstructor //Tự động tạo contructor có các biến là final
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true) //Tự động define biến là private và final
@@ -46,23 +52,38 @@ public class UserService {
         return userMapper.toUserResponse(user);
     }
 
+    // Sự khác nhau giữa @PreAuthorize và @PostAuthorize
+    // @PreAuthorize: Kiểm tra quyền trước khi phương thức được gọi
+    // @PostAuthorize: Kiểm tra quyền sau khi phương thức được gọi
+    // Ví dụ: @PreAuthorize("hasRole('ADMIN')") chỉ cho phép người dùng có vai trò ADMIN gọi phương thức
+    // Ví dụ: @PostAuthorize("returnObject.owner == authentication.name") chỉ cho phép người dùng gọi phương thức nếu đối tượng trả về có thuộc tính owner trùng với tên người dùng đã xác thực
+
+
+    //Chỉ có ADMIN mới được phép gọi api này
+    //Trước khi gọi api này sẽ kiểm tra role của user trong token có phải là ADMIN không
+    //Nếu không phải sẽ trả về lỗi 403
+    @PreAuthorize("hasRole('ADMIN')")
     public List<UserResponse> getUsers(){
+        log.info("In method get users");
         return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
     }
 
+    //Chỉ có ADMIN hoặc chính user đó mới được phép gọi api này
+    //Nếu không phải sẽ trả về lỗi 403
+    @PostAuthorize("returnObject.username == authentication.name or hasRole('ADMIN')")
     public UserResponse getUser(String id){
         return userMapper.toUserResponse(userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found")));
     }
 
+
     //Luyện tập tạo Api get myinfo, so sánh username trong token với username trong db, nếu trùng thì trả về thông tin user
     public UserResponse getMyInfo(){
         //Lấy username từ token
-        var authentication = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
-        var username = authentication.getName();
-
+        var context = SecurityContextHolder.getContext();
+        String username = context.getAuthentication().getName();
         //Tìm user trong db
-        var user = userRepository.findByUsername(username)
+        User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         return userMapper.toUserResponse(user);

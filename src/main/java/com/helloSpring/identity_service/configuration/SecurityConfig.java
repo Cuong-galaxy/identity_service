@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -22,7 +23,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 @Configuration
 @EnableWebSecurity
-
+@EnableMethodSecurity
 
 // đăng ký cấu hình bảo mật cho ứng dụng Spring Boot
 // Đăng ký endpoint nào được phép truy cập mà không cần xác thực
@@ -42,12 +43,12 @@ public class SecurityConfig {
         // Cho phép tất cả các yêu cầu POST đến endpoint /users mà không cần xác thực
         httpSecurity.authorizeHttpRequests(request ->
                 request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll()
-                        .requestMatchers(HttpMethod.GET, "/users")
+                            //.requestMatchers(HttpMethod.GET, "/users") Vì đã có @PreAuthorize trong service nen không cần cấu hình ở đây nữa
                             //.hasAnyAuthority("ROLE_ADMIN") // Chỉ cho phép truy cập nếu có vai trò ADMIN
-                             .hasRole(Role.ADMIN.name()) // Chỉ cho phép truy cập nếu có vai trò ADMIN
+                            // .hasRole(Role.ADMIN.name()) // Chỉ cho phép truy cập nếu có vai trò ADMIN
 
                         //cho phép get thông tin myinfo cho user đã xác thực
-                        .requestMatchers(HttpMethod.GET, "/users/me").authenticated()
+                        //.requestMatchers(HttpMethod.GET, "/users/me").authenticated()
                         .anyRequest().authenticated()
                 );
 
