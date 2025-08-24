@@ -7,28 +7,51 @@ import com.helloSpring.identity_service.dto.response.UserResponse;
 import com.helloSpring.identity_service.entity.User;
 import com.helloSpring.identity_service.service.UserService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
-@RequestMapping("/users")
+
+@Slf4j
+@RestController             // Khai báo đây là 1 controller
+@RequestMapping("/users")   // Định nghĩa đường dẫn gốc cho các endpoint trong controller này
+@RequiredArgsConstructor //Tự động tạo contructor có các biến là final
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true) //Tự động define biến là private và final
 public class UserController {
-    @Autowired
-    private UserService userService;
+    UserService userService; // Biến userService được tự động khởi tạo thông qua constructor do sử dụng @RequiredArgsConstructor
 
     @PostMapping
-    ApiResponse<User>  createUser(@RequestBody @Valid UserCreationRequest request){
-       ApiResponse<User> apiResponse = new ApiResponse<>();
-       apiResponse.setResult(userService.createUser(request));
-        return apiResponse;
-       
+    // Định nghĩa endpoint cho phương thức HTTP POST
+    ApiResponse<UserResponse>  createUser(@RequestBody @Valid UserCreationRequest request){
+        // @RequestBody: Chỉ định rằng tham số request sẽ được ánh xạ từ body của yêu cầu HTTP
+        // @Valid: Kích hoạt việc kiểm tra tính hợp lệ của đối tượng request dựa trên các chú thích xác thực trong lớp UserCreationRequest
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.createUser(request))
+                .build();
     }
     @GetMapping
-    List<User> getUsers(){
-        return  userService.getUsers();
+    ApiResponse<List<UserResponse>> getUsers(){
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        log.info("Username: {}", authentication.getName());
+        authentication.getAuthorities().forEach(grantedAuthority -> log.info("Role: {}", grantedAuthority.getAuthority()));
+
+        return  ApiResponse.<List<UserResponse>>builder()
+                .result(userService.getUsers())
+                .build();
     }
+    // tạo api get myinfo
+    @GetMapping("/me")
+    ApiResponse<UserResponse> getMyInfo(){
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.getMyInfo())
+                .build();
+    }
+
 
     @GetMapping("/{userId}")
     UserResponse getUser(@PathVariable("userId") String  userId){

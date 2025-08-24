@@ -9,13 +9,14 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.util.Set;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
-@Entity
+@Data // tạo getter, setter, toString, equals, hashCode
+@Builder // tạo builder pattern
+@NoArgsConstructor // tạo constructor không tham số
+@AllArgsConstructor // tạo constructor với tất cả tham số
+@FieldDefaults(level = AccessLevel.PRIVATE) // đặt tất cả các trường thành private
+@Entity // đánh dấu lớp này là một thực thể JPA
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -25,6 +26,7 @@ public class User {
     String firstName;
     String lastName;
     LocalDate dob;
+    Set<String> roles;
 
 
 }

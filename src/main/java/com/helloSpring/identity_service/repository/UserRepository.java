@@ -10,5 +10,7 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, String> {
 
     boolean existsByUsername(String username);
+    // tạo method tìm user theo username
+    //optional để tránh lỗi null pointer exception
     Optional<User> findByUsername(String username);
 }
