@@ -1,5 +1,6 @@
 package com.helloSpring.identity_service.dto.response;
 
+import com.helloSpring.identity_service.entity.Role;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -26,5 +27,5 @@ public class UserResponse {
     String firstName;
     String lastName;
     LocalDate dob;
-    Set<String> roles;
+    Set<Role> roles;
 }

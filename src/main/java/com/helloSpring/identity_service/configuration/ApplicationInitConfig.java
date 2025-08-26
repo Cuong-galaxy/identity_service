@@ -39,7 +39,7 @@ public class ApplicationInitConfig {
                 User user = User.builder()   // Sử dụng builder để tạo đối tượng User
                         .username("admin")
                         .password(passwordEncoder.encode("admin")) // Mã hóa mật khẩu
-                        .roles(roles)
+                        //.roles(roles)
                         .build();
 
                 userRepository.save(user); // Lưu user vào cơ sở dữ liệu

@@ -14,13 +14,11 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -46,7 +44,8 @@ public class UserService {
 
         HashSet<String> roles = new HashSet<>();
         roles.add(Role.USER.name());
-        user.setRoles(roles);
+
+        //user.setRoles(roles);
 
         user = userRepository.save(user);
         return userMapper.toUserResponse(user);
@@ -95,7 +94,7 @@ public class UserService {
     public  UserResponse updateUser(String userId, UserUpdateRequest request){
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
-        userMapper.upateUser(user, request);
+        userMapper.updateUser(user, request);
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
