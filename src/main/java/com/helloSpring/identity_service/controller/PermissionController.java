@@ -1,0 +1,51 @@
+package com.helloSpring.identity_service.controller;
+
+
+import com.helloSpring.identity_service.dto.request.ApiResponse;
+import com.helloSpring.identity_service.dto.request.AuthenticationRequest;
+import com.helloSpring.identity_service.dto.request.IntrospectRequest;
+import com.helloSpring.identity_service.dto.request.PermissionRequest;
+import com.helloSpring.identity_service.dto.response.AuthenticationResponse;
+import com.helloSpring.identity_service.dto.response.IntrospectResponse;
+import com.helloSpring.identity_service.dto.response.PermissionResponse;
+import com.helloSpring.identity_service.service.AuthenticationService;
+import com.helloSpring.identity_service.service.PermissionService;
+import com.nimbusds.jose.JOSEException;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.springframework.web.bind.annotation.*;
+
+import java.text.ParseException;
+import java.util.List;
+
+@RestController
+@RequestMapping("/permissions")
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+public class PermissionController {
+    PermissionService permissionService;
+
+    @PostMapping()
+    ApiResponse<PermissionResponse> authenticate(@RequestBody PermissionRequest request){
+       return ApiResponse.<PermissionResponse>builder()
+               .result(permissionService.create(request))
+               .build();
+
+    }
+
+
+    @GetMapping
+    ApiResponse<List<PermissionResponse>> getAll(){
+        return ApiResponse.<List<PermissionResponse>>builder()
+                .result(permissionService.getAll())
+                .build();
+
+    }
+
+    @DeleteMapping("/{permission}")
+    ApiResponse<Void> delete(@PathVariable String permission){
+        return ApiResponse.<Void>builder().build();
+    }
+
+}
