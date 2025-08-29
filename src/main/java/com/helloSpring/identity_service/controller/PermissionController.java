@@ -27,7 +27,7 @@ public class PermissionController {
     PermissionService permissionService;
 
     @PostMapping()
-    ApiResponse<PermissionResponse> authenticate(@RequestBody PermissionRequest request){
+    ApiResponse<PermissionResponse> create(@RequestBody PermissionRequest request){
        return ApiResponse.<PermissionResponse>builder()
                .result(permissionService.create(request))
                .build();
@@ -45,6 +45,7 @@ public class PermissionController {
 
     @DeleteMapping("/{permission}")
     ApiResponse<Void> delete(@PathVariable String permission){
+        permissionService.delete(permission);
         return ApiResponse.<Void>builder().build();
     }
 
