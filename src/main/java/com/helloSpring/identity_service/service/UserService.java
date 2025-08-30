@@ -102,17 +102,25 @@ public class UserService {
 
 
 
+    // Phương thức cập nhật thông tin người  dùng
     public  UserResponse updateUser(String userId, UserUpdateRequest request){
+        // Tìm người dùng trong cơ sở dữ liệu theo ID
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
+        // Cập nhật thông tin người dùng từ yêu cầ u
         userMapper.updateUser(user, request);
 
+        // Mã hóa mật khẩu mới trước khi lưu vào cơ sở dữ liệu
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
+        // Lấy các vai trò từ cơ sở dữ liệu dựa trên danh sách ID vai trò trong yêu cầu
         var roles = roleRepository.findAllById(request.getRoles());
+
+        // Cập nhật vai trò cho người dùng
         user.setRoles(new HashSet<>(roles));
 
+        // Lưu người dùng đã được cập nhật vào cơ sở dữ liệu và chuyển đổi sang UserResponse để trả về
         return userMapper.toUserResponse(userRepository.save(user));
 
     }
