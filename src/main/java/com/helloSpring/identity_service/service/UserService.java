@@ -9,6 +9,7 @@ import com.helloSpring.identity_service.enums.Role;
 import com.helloSpring.identity_service.exception.AppException;
 import com.helloSpring.identity_service.exception.ErrorCode;
 import com.helloSpring.identity_service.mapper.UserMapper;
+import com.helloSpring.identity_service.repository.RoleRepository;
 import com.helloSpring.identity_service.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -31,19 +32,27 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true) //Tự động define biến là private và final
 public class UserService {
     UserRepository userRepository;
+    RoleRepository roleRepository;
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
 
+    // Tạo user mới
     public UserResponse createUser(UserCreationRequest request){
+
+        // Kiểm tra xem username đã tồn tại chưa
         if(userRepository.existsByUsername(request.getUsername()))
+            // Nếu tồn tại thì ném ra ngoại lệ
             throw new AppException(ErrorCode.USER_EXISTED);
 
-
+        // Chuyển đổi từ UserCreationRequest sang User entity
         User user = userMapper.toUser(request);
+
+        // Mã hóa mật khẩu trước khi lưu vào cơ sở dữ liệu
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        HashSet<String> roles = new HashSet<>();
-        roles.add(Role.USER.name());
+        // Lấy các vai trò từ cơ sở dữ liệu dựa trên danh sách ID vai trò trong yêu cầu
+        var roles = roleRepository.findAllById(request.getRoles());
+        user.setRoles(new HashSet<>(roles));
 
         //user.setRoles(roles);
 
@@ -61,7 +70,9 @@ public class UserService {
     //Chỉ có ADMIN mới được phép gọi api này
     //Trước khi gọi api này sẽ kiểm tra role của user trong token có phải là ADMIN không
     //Nếu không phải sẽ trả về lỗi 403
-    @PreAuthorize("hasRole('ADMIN')")
+    //@PreAuthorize("hasRole('ADMIN')")
+    // Hoặc có thể dùng authority
+    @PreAuthorize("hasAuthority('VIEW_DATA')")
     public List<UserResponse> getUsers(){
         log.info("In method get users");
         return userRepository.findAll().stream().map(userMapper::toUserResponse).toList();
@@ -92,11 +103,15 @@ public class UserService {
 
 
     public  UserResponse updateUser(String userId, UserUpdateRequest request){
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         userMapper.updateUser(user, request);
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        var roles = roleRepository.findAllById(request.getRoles());
+        user.setRoles(new HashSet<>(roles));
 
         return userMapper.toUserResponse(userRepository.save(user));
 

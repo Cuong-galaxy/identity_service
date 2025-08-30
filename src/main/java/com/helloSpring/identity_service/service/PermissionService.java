@@ -21,15 +21,28 @@ public class PermissionService {
     PermissionRepository permissionRepository;
     PermissionMapper permissionMapper;
 
-    public PermissionResponse create(PermissionRequest request){
+
+    // Phươngthức tạo permission
+    public PermissionResponse create(PermissionRequest request){   //Đầu vào là PermissionRequest, đầu ra là PermissionResponse
+
+        // Tao permission từ request
         Permission permission = permissionMapper.toPemission(request);
+
+        // Lưu permission vào database
         permission = permissionRepository.save(permission);
+
+        // Trả về permissionResponse
         return permissionMapper.toPermissionResponse(permission);
 
     }
 
+    // Phương thức lấy tất cả permission
     public List<PermissionResponse> getAll(){
+
+        // Lấy tất cả permission từ database
         var permission = permissionRepository.findAll();
+
+        // Chuyển đổi danh sách permission thành danh sách permissionResponse và trả về
         return permission.stream().map(permissionMapper::toPermissionResponse).toList();
     }
 

@@ -86,10 +86,14 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder(10);
     }
 
+
+    // Cấu hình JwtAuthenticationConverter để chuyển đổi JWT thành Authentication
+    // và ánh xạ các quyền từ claim "scope" trong JWT thành GrantedAuthority trong Spring Security
+    // với tiền tố rỗng (không có tiền tố "SCOPE_")
     @Bean
     JwtAuthenticationConverter jwtAuthenticationConverter(){
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("ROLE_"); // Thêm tiền tố "
+        jwtGrantedAuthoritiesConverter.setAuthorityPrefix(""); // Thêm tiền tố "
 
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);

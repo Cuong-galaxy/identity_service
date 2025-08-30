@@ -15,10 +15,12 @@ import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
-
+    @Mapping(target = "roles", ignore = true)
     User toUser(UserCreationRequest request);
 
     UserResponse toUserResponse(User user);
+
+    @Mapping(target = "roles", ignore = true) //dùng để bỏ qua mapping trường roles
     void updateUser(@MappingTarget  User user, UserUpdateRequest request);
 
 

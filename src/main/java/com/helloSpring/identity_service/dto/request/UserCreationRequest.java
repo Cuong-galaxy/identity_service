@@ -5,6 +5,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.util.List;
+
 @Data
 @NoArgsConstructor //Tạo contructor không đối số
 @AllArgsConstructor // tạo contructor toàn đối số
@@ -20,5 +22,5 @@ public class UserCreationRequest {
     String lastName;
     LocalDate dob;
 
-
+    List<String> roles;
 }

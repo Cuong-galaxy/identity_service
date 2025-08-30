@@ -4,6 +4,8 @@ package com.helloSpring.identity_service.dto.request;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.Set;
+
 
 @Data
 @NoArgsConstructor //Tạo contructor không đối số
@@ -13,4 +15,6 @@ import lombok.experimental.FieldDefaults;
 public class RoleRequest {
     String name ;
     String description;
+    Set<String> permissions;
+
 }

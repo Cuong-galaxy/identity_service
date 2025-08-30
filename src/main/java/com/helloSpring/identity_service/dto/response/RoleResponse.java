@@ -4,6 +4,8 @@ package com.helloSpring.identity_service.dto.response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.util.Set;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -12,4 +14,6 @@ import lombok.experimental.FieldDefaults;
 public class RoleResponse {
     String name;
     String description;
+
+    Set<PermissionResponse> permissions;
 }
