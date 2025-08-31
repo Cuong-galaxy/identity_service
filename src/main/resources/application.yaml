@@ -15,5 +15,5 @@ spring:
       ddl-auto: update
     show-sql: true
 
-jwt:
-  signerKey: "zJOVYxhYXPp4QjuJxysULgv8xCE8yEqTvtdPGkqg4t13YgdlmckBi7gSBlxNONEI"
+  config:
+    import: classpath:/application-secret.yaml

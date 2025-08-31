@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 
-@Slf4j
+@Slf4j                      // Kích hoạt logging trong class này
 @RestController             // Khai báo đây là 1 controller
 @RequestMapping("/users")   // Định nghĩa đường dẫn gốc cho các endpoint trong controller này
 @RequiredArgsConstructor //Tự động tạo contructor có các biến là final
