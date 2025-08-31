@@ -3,6 +3,8 @@ package com.helloSpring.identity_service.validator;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 
 /*
     * Lớp DobValidator kiểm tra tính hợp lệ của ngày sinh (dob) dựa trên ràng buộc DobConstraint.
@@ -16,18 +18,27 @@ public class DobValidator implements ConstraintValidator<DobConstraint, LocalDat
     // Phương thức kiểm tra tính hợp lệ của ngày sinh
     @Override
     public boolean isValid(LocalDate value, ConstraintValidatorContext context) {
-        if (value == null) {
-            return true; // Cho phép giá trị null, sử dụng @NotNull để kiểm tra null nếu cần
-        }
-        // Tính tuổi dựa trên ngày sinh
-        LocalDate today = LocalDate.now();
+//        if (value == null) {
+//            return true; // Cho phép giá trị null, sử dụng @NotNull để kiểm tra null nếu cần
+//        }
+//        // Tính tuổi dựa trên ngày sinh
+//        LocalDate today = LocalDate.now();
+//
+//        // Tính tuổi
+//        int age = today.getYear() - value.getYear();
+//        if (today.getDayOfYear() < value.getDayOfYear()) {
+//            age--; // Chưa đến sinh nhật trong năm nay
+//        }
+//        return age >= 18; // Kiểm tra tuổi >= 18
 
-        // Tính tuổi
-        int age = today.getYear() - value.getYear();
-        if (today.getDayOfYear() < value.getDayOfYear()) {
-            age--; // Chưa đến sinh nhật trong năm nay
-        }
-        return age >= 18; // Kiểm tra tuổi >= 18
+
+        //Sủ dụng Objects.isNull để kiểm tra null
+        if(Objects.isNull(value))
+            return true;
+
+        // Sử dụng ChronoUnit để tính số năm giữa ngày sinh và ngày hiện tại
+        long years = ChronoUnit.YEARS.between(value, LocalDate.now());
+        return years >= min;
     }
 
     // Phương thức khởi tạo, lấy giá trị min từ annotation

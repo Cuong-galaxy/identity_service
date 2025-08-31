@@ -14,15 +14,15 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE) //Set access modifie cho các  thuộc tính thành private
 public class UserCreationRequest {
-    @Size(min = 3, message = "USERNAME_ERROR")
+    @Size(min = 8, message = "USERNAME_ERROR")
     String username;
 
-    @Size(min = 8, message = "PASSWORD_ERROR")
+    @Size(min = 10, message = "PASSWORD_ERROR")
     String password;
     String firstName;
     String lastName;
 
-    @DobConstraint(min = 18, message = "INVALID_DOB")
+    @DobConstraint(min = 4, message = "INVALID_DOB")
     LocalDate dob;
 
     List<String> roles;
