@@ -4,6 +4,7 @@ package com.helloSpring.identity_service.controller;
 import com.helloSpring.identity_service.dto.request.ApiResponse;
 import com.helloSpring.identity_service.dto.request.AuthenticationRequest;
 import com.helloSpring.identity_service.dto.request.IntrospectRequest;
+import com.helloSpring.identity_service.dto.request.LogoutRequest;
 import com.helloSpring.identity_service.dto.response.AuthenticationResponse;
 import com.helloSpring.identity_service.dto.response.IntrospectResponse;
 import com.helloSpring.identity_service.service.AuthenticationService;
@@ -42,4 +43,14 @@ public class AuthenticationController {
                 .build();
 
     }
+    @PostMapping("/logout")
+    ApiResponse<Void> logout(@RequestBody LogoutRequest request)
+            throws ParseException, JOSEException {
+        authenticationService.logout(request);
+        return ApiResponse.<Void>builder()
+                .build();
+
+    }
+
+
 }

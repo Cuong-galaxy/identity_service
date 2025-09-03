@@ -29,7 +29,7 @@ import javax.crypto.spec.SecretKeySpec;
 // Đăng ký endpoint nào được phép truy cập mà không cần xác thực
 public class SecurityConfig {
     // Định nghĩa các endpoint công khai mà không yêu cầu xác thực
-    private final String[] PUBLIC_ENDPOINTS = {"/users", "/auth/token","/auth/introspect"};
+    private final String[] PUBLIC_ENDPOINTS = {"/users", "/auth/token","/auth/introspect","/auth/logout"};
 
 
     // Lấy khóa bí mật từ file cấu hình application.properties

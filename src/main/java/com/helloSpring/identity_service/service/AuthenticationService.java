@@ -2,11 +2,14 @@ package com.helloSpring.identity_service.service;
 
 import com.helloSpring.identity_service.dto.request.AuthenticationRequest;
 import com.helloSpring.identity_service.dto.request.IntrospectRequest;
+import com.helloSpring.identity_service.dto.request.LogoutRequest;
 import com.helloSpring.identity_service.dto.response.AuthenticationResponse;
 import com.helloSpring.identity_service.dto.response.IntrospectResponse;
+import com.helloSpring.identity_service.entity.InvalidatedToken;
 import com.helloSpring.identity_service.exception.AppException;
 import com.helloSpring.identity_service.exception.ErrorCode;
 import com.helloSpring.identity_service.entity.User;
+import com.helloSpring.identity_service.repository.InvalidatedRepository;
 import com.helloSpring.identity_service.repository.UserRepository;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
@@ -29,6 +32,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.StringJoiner;
+import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -37,7 +41,7 @@ import java.util.StringJoiner;
 // Service này chịu trách nhiệm xác thực người dùng và tạo token
 public class AuthenticationService {
     UserRepository userRepository;
-
+    InvalidatedRepository invalidatedRepository;
 
     @NonFinal                       // Biến không phải final để có thể gán giá trị từ file cấu hình
     @Value("${jwt.signerKey}")      // Lấy giá trị từ file cấu hình application.properties hoặc application.yml
@@ -47,22 +51,21 @@ public class AuthenticationService {
     public IntrospectResponse introspect(IntrospectRequest request) throws JOSEException, ParseException {
         // Lấy token từ yêu cầu
         var token = request.getToken();
+        boolean isValid = true;
 
-        // Tạo bộ xác thực JWS với khóa bí mật
-        JWSVerifier verifier = new MACVerifier(SIGNING_KEY.getBytes());
+         // Nếu token rỗng hoặc null, trả về token không hợp lệ
 
-        // Phân tích token để lấy thông tin
-        SignedJWT signedJWT = SignedJWT.parse(token);
+        try {
+            // Xác thực token
+            verifyToken(token);
+        }catch (AppException e){
+            isValid = false;
+        }
 
-        // Lấy thời gian hết hạn của token
-        Date expityTime = signedJWT.getJWTClaimsSet().getExpirationTime();
-
-        // Xác thực token
-        var verified = signedJWT.verify(verifier);
 
         // Trả về kết quả xác thực và thời gian hết hạn
         return IntrospectResponse.builder()
-                .valid(verified && expityTime.after(new Date()))
+                .valid(isValid)
                 .build();
     }
 
@@ -99,8 +102,6 @@ public class AuthenticationService {
 
     // Hàm tạo JWT token
    private String generateToken(User user) {
-
-
          // Tạo header và payload cho JWT token
         // Header chứa thuật toán ký và loại token
        JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
@@ -113,6 +114,7 @@ public class AuthenticationService {
                 .expirationTime(new Date(                   // thời gian hết hạn token
                         Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()
                 ))
+                .jwtID(UUID.randomUUID().toString())
                 .claim("scope", buildScope(user))     // các vai trò của user
                 .build();
 
@@ -133,6 +135,43 @@ public class AuthenticationService {
         }
 
    }
+
+   public void logout(LogoutRequest request) throws ParseException, JOSEException {
+        var signToken = verifyToken(request.getToken());
+
+        String jit = signToken.getJWTClaimsSet().getJWTID();
+        Date expiryTime = signToken.getJWTClaimsSet().getExpirationTime();
+
+       InvalidatedToken invalidatedToken = InvalidatedToken.builder()
+               .id(jit)
+               .expiryTime(expiryTime)
+               .build();
+         invalidatedRepository.save(invalidatedToken);
+   }
+
+   private SignedJWT verifyToken(String token) throws ParseException, JOSEException {
+
+       // Tạo bộ xác thực JWS với khóa bí mật
+       JWSVerifier verifier = new MACVerifier(SIGNING_KEY.getBytes());
+
+       // Phân tích token để lấy thông tin
+       SignedJWT signedJWT = SignedJWT.parse(token);
+
+       // Lấy thời gian hết hạn của token
+       Date expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+
+       // Xác thực token
+       var verified = signedJWT.verify(verifier);
+       // Nếu không xác thực được hoặc token đã hết hạn, ném ra ngoại lệ
+       if(!verified && expiryTime.after(new Date()))
+           throw new AppException(ErrorCode.UNAUTHENTICATED);
+
+       if(invalidatedRepository.existsById(signedJWT.getJWTClaimsSet().getJWTID()))
+           throw new AppException(ErrorCode.UNAUTHENTICATED);
+
+       return signedJWT;
+   }
+
 
    // Hàm xây dựng chuỗi các vai trò và quyền của user
    private String buildScope(User user){
